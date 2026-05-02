@@ -25,13 +25,15 @@
   --r:8px;--rl:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:100%}
+html{height:100%;overflow-x:hidden;max-width:100vw}
 body{
   font-family:'DM Sans',sans-serif;
   background:var(--bg);color:var(--text);
   font-size:13px;
   min-height:100vh;
   display:flex;flex-direction:column;
+  overflow-x:hidden;
+  max-width:100vw;
 }
 
 /* HEADER */
@@ -252,6 +254,125 @@ td.dim .td-main{opacity:.3;font-style:italic}
   font-size:10px;color:rgba(255,255,255,0.28);
   margin-top:6px;letter-spacing:.02em;
 }
+
+/* ── MOBILE OVERLAY & SUMMARY ── */
+@media(max-width:768px){
+  /* prevent horizontal scroll */
+  html,body{overflow-x:hidden !important;max-width:100vw !important}
+  *{max-width:100vw}
+  .body{grid-template-columns:1fr !important;overflow:visible !important;width:100%;height:auto !important}
+  .left{display:none} /* hidden — replaced by summary + overlay */
+  .right{overflow:visible;padding:12px}
+  .metrics{grid-template-columns:1fr 1fr}
+  .mid-row{grid-template-columns:1fr;min-height:auto}
+  .card{min-height:auto;max-width:100%}
+  .chart-wrap{min-height:220px}
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:0;width:100%}
+  thead th,tbody td{white-space:nowrap;font-size:10px;padding:5px 6px}
+  thead th:first-child,tbody td:first-child{white-space:normal;min-width:80px}
+  .impact-bar{flex-direction:column;gap:10px;padding:14px 16px;width:100%;overflow:hidden}
+  .impact-stats{width:100%;justify-content:center}
+  .impact-quote{font-size:14px}
+  header{flex-wrap:wrap;height:auto;padding:10px 16px;gap:8px}
+  .reg-row{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;
+    -ms-overflow-style:none;scrollbar-width:none}
+  .reg-row::-webkit-scrollbar{display:none}
+
+  /* Summary bar — shows current params */
+  .mob-summary{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--rl);
+    padding:10px 14px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .mob-summary-vals{
+    font-size:12px;color:var(--text2);
+    font-family:'DM Mono',monospace;
+    flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mob-summary-vals span{color:var(--text);font-weight:500}
+
+  /* Floating edit button */
+  .mob-fab{
+    position:fixed !important;
+    bottom:24px !important;
+    right:20px !important;
+    width:52px;height:52px;
+    background:var(--text);
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+    display:flex !important;
+    align-items:center;justify-content:center;
+    box-shadow:0 4px 20px rgba(0,0,0,0.35);
+    z-index:9999 !important;
+    transition:transform .15s;
+    -webkit-transform:translateZ(0);
+    transform:translateZ(0);
+  }
+  .mob-fab:active{transform:scale(0.93)}
+  .mob-fab svg{display:block;flex-shrink:0}
+
+  /* Full-screen overlay */
+  .mob-overlay{
+    position:fixed !important;
+    top:0 !important;left:0 !important;
+    right:0 !important;bottom:0 !important;
+    width:100% !important;height:100% !important;
+    background:var(--bg);
+    z-index:9998 !important;
+    display:flex;flex-direction:column;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+    -webkit-transform:translateY(100%);
+    overflow:hidden;
+  }
+  .mob-overlay.open{
+    transform:translateY(0) !important;
+    -webkit-transform:translateY(0) !important;
+  }
+  .mob-overlay-header{
+    background:var(--text);color:#fff;
+    padding:0 20px;height:50px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .mob-overlay-title{font-size:14px;font-weight:500}
+  .mob-overlay-done{
+    background:#fff;color:var(--text);
+    border:none;border-radius:6px;
+    padding:6px 16px;font-size:13px;font-weight:500;
+    font-family:'DM Sans',sans-serif;cursor:pointer;
+  }
+  .mob-overlay-body{
+    flex:1;overflow-y:auto;
+    padding:16px;
+  }
+  .mob-overlay-body .sec-title{margin-top:4px}
+  .mob-overlay-body .divider{margin:12px 0}
+
+  /* Region selector inside overlay */
+  .mob-reg-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .mob-reg-row .rb{font-size:12px;padding:6px 12px;
+    border-color:var(--border-med);color:var(--text2)}
+  .mob-reg-row .rb.on{background:var(--text);color:#fff;border-color:var(--text)}
+  /* Override parent overflow:hidden so position:fixed FAB/overlay work on iOS */
+  .body{overflow:visible !important;height:auto !important}
+  .right{overflow:visible !important}
+}
+
+/* Hide mobile elements on desktop */
+@media(min-width:769px){
+  .mob-summary{display:none}
+  .mob-fab{display:none}
+  .mob-overlay{display:none}
+}
 </style>
 </head>
 <body>
@@ -271,6 +392,11 @@ td.dim .td-main{opacity:.3;font-style:italic}
 </header>
 
 <div class="body">
+
+  <!-- MOBILE SUMMARY BAR -->
+  <div class="mob-summary" id="mob-summary" style="display:none">
+    <div class="mob-summary-vals" id="mob-summary-vals">5 FTEs &middot; $55,000 &middot; 5,000 pages</div>
+  </div>
 
   <!-- LEFT -->
   <div class="left">
@@ -492,6 +618,17 @@ function setR(btn,k){
   ss.min=r.salMin;ss.max=r.salMax;ss.step=r.salStep;ss.value=r.sal;
   document.getElementById('smin').textContent=fsh(r.salMin,r);
   document.getElementById('smax').textContent=fsh(r.salMax,r);
+  /* sync mobile salary slider range too */
+  var mss=document.getElementById('m-sl-sal');
+  if(mss){mss.min=r.salMin;mss.max=r.salMax;mss.step=r.salStep;mss.value=r.sal;}
+  var msmin=document.getElementById('m-smin');
+  var msmax=document.getElementById('m-smax');
+  if(msmin)msmin.textContent=fsh(r.salMin,r);
+  if(msmax)msmax.textContent=fsh(r.salMax,r);
+  var mfte=document.getElementById('m-sl-fte');
+  if(mfte)mfte.value=document.getElementById('sl-fte').value;
+  var mpgs=document.getElementById('m-sl-pages');
+  if(mpgs)mpgs.value=document.getElementById('sl-pages').value;
   go();
 }
 
@@ -685,6 +822,190 @@ function cycleQuote(){
 setInterval(cycleQuote,4000);
 
 go();
+</script>
+<!-- FLOATING EDIT BUTTON (mobile only) -->
+<button class="mob-fab" id="mob-fab" aria-label="Edit parameters" onclick="openOverlay()">
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14.69 2.31a1.5 1.5 0 0 1 2.12 2.12L6.5 14.75l-2.83.71.71-2.83L14.69 2.31z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<!-- FULL-SCREEN OVERLAY (mobile only) -->
+<div class="mob-overlay" id="mob-overlay">
+  <div class="mob-overlay-header">
+    <span class="mob-overlay-title">Edit Parameters</span>
+    <button class="mob-overlay-done" onclick="closeOverlay()">Done</button>
+  </div>
+  <div class="mob-overlay-body">
+
+    <div class="sec-title">Region</div>
+    <div class="mob-reg-row">
+      <button class="rb on" onclick="setR(this,'NA');syncOverlayRegion(this)">North America</button>
+      <button class="rb" onclick="setR(this,'UAE');syncOverlayRegion(this)">UAE</button>
+      <button class="rb" onclick="setR(this,'SA');syncOverlayRegion(this)">Saudi Arabia</button>
+      <button class="rb" onclick="setR(this,'PH');syncOverlayRegion(this)">Philippines</button>
+      <button class="rb" onclick="setR(this,'IN');">India</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="sec-title">Pricing inputs</div>
+    <div class="pi">
+      <div class="pi-label">Implementation fee</div>
+      <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="m-p-impl" value="30000" oninput="syncFromMobile()"></div>
+      <div class="pi-loc" id="m-loc-impl"></div>
+    </div>
+    <div class="pi">
+      <div class="pi-label">Subscription / month</div>
+      <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="m-p-sub" value="1500" oninput="syncFromMobile()"></div>
+      <div class="pi-loc" id="m-loc-sub"></div>
+    </div>
+    <div class="pi">
+      <div class="pi-label">AWS infra / month</div>
+      <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="m-p-aws" value="100" oninput="syncFromMobile()"></div>
+      <div class="pi-loc" id="m-loc-aws"></div>
+    </div>
+    <div class="pi">
+      <div class="pi-label">Page cost per 1,000 pages</div>
+      <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="m-p-page" value="40" oninput="syncFromMobile()"></div>
+      <div class="pi-loc" id="m-loc-page"></div>
+    </div>
+    <div class="pi">
+      <div class="pi-label">Manual Effort After Automation</div>
+      <div class="pi-row"><input type="number" id="m-p-res" value="20" oninput="syncFromMobile()"><span class="pi-sym" style="width:auto;margin-left:4px">%</span></div>
+      <div class="pi-loc">% of total FTE salary cost</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="sec-title">AP team parameters</div>
+    <div class="sl-blk">
+      <div class="sl-top"><span class="sl-label">Team size (FTEs)</span><span class="sl-val" id="m-v-fte">5</span></div>
+      <div class="sl-loc">&nbsp;</div>
+      <input type="range" id="m-sl-fte" min="1" max="50" step="1" value="5">
+      <div class="sl-ends"><span>1</span><span>50</span></div>
+    </div>
+    <div class="sl-blk">
+      <div class="sl-top"><span class="sl-label">Avg. salary / yr per FTE</span><span class="sl-val" id="m-v-sal">$55,000</span></div>
+      <div class="sl-loc" id="m-v-sal-loc">&nbsp;</div>
+      <input type="range" id="m-sl-sal" min="40000" max="100000" step="1000" value="55000">
+      <div class="sl-ends"><span id="m-smin">$40K</span><span id="m-smax">$100K</span></div>
+    </div>
+    <div class="sl-blk">
+      <div class="sl-top"><span class="sl-label">Pages processed / month</span><span class="sl-val" id="m-v-pages">5,000</span></div>
+      <div class="sl-loc">&nbsp;</div>
+      <input type="range" id="m-sl-pages" min="1000" max="100000" step="1000" value="5000">
+      <div class="sl-ends"><span>1K</span><span>100K</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── Mobile overlay logic ── */
+function isMobile(){return window.innerWidth<=768;}
+
+function openOverlay(){
+  /* sync overlay inputs from desktop inputs before opening */
+  syncOverlayFromDesktop();
+  document.getElementById('mob-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeOverlay(){
+  document.getElementById('mob-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  updateSummaryBar();
+}
+
+function syncOverlayFromDesktop(){
+  var fields=[['p-impl','m-p-impl'],['p-sub','m-p-sub'],['p-aws','m-p-aws'],
+              ['p-page','m-p-page'],['p-res','m-p-res'],
+              ['sl-fte','m-sl-fte'],['sl-sal','m-sl-sal'],['sl-pages','m-sl-pages']];
+  fields.forEach(function(f){
+    var src=document.getElementById(f[0]);
+    var dst=document.getElementById(f[1]);
+    if(src&&dst)dst.value=src.value;
+  });
+  /* sync slider display values */
+  updateMobileSliderLabels();
+  /* sync region buttons in overlay */
+  var activeReg=document.querySelector('header .rb.on');
+  if(activeReg){
+    document.querySelectorAll('.mob-reg-row .rb').forEach(function(b){
+      b.classList.remove('on');
+      if(b.textContent.trim()===activeReg.textContent.trim())b.classList.add('on');
+    });
+  }
+}
+
+function syncFromMobile(){
+  /* copy mobile overlay values → desktop hidden inputs → trigger go() */
+  var fields=[['p-impl','m-p-impl'],['p-sub','m-p-sub'],['p-aws','m-p-aws'],
+              ['p-page','m-p-page'],['p-res','m-p-res'],
+              ['sl-fte','m-sl-fte'],['sl-sal','m-sl-sal'],['sl-pages','m-sl-pages']];
+  fields.forEach(function(f){
+    var src=document.getElementById(f[1]);
+    var dst=document.getElementById(f[0]);
+    if(src&&dst)dst.value=src.value;
+  });
+  updateMobileSliderLabels();
+  go();
+}
+
+function syncOverlayRegion(btn){
+  /* keep overlay region buttons in sync */
+  document.querySelectorAll('.mob-reg-row .rb').forEach(function(b){b.classList.remove('on');});
+  if(btn.closest('.mob-reg-row'))btn.classList.add('on');
+  syncOverlayFromDesktop();
+}
+
+function updateMobileSliderLabels(){
+  var fte=document.getElementById('m-sl-fte').value;
+  var sal=parseInt(document.getElementById('m-sl-sal').value)||55000;
+  var pgs=document.getElementById('m-sl-pages').value;
+  var r=R[cr];
+  document.getElementById('m-v-fte').textContent=fte;
+  document.getElementById('m-v-sal').textContent='$'+sal.toLocaleString();
+  document.getElementById('m-v-sal-loc').textContent=r.rate!==1?'\u2248\u00a0'+r.lsym+Math.round(sal*r.rate).toLocaleString()+'\u00a0'+r.cur:'';
+  document.getElementById('m-v-pages').textContent=parseInt(pgs).toLocaleString();
+}
+
+function updateSummaryBar(){
+  var fte=document.getElementById('sl-fte').value;
+  var sal=parseInt(document.getElementById('sl-sal').value)||55000;
+  var pgs=document.getElementById('sl-pages').value;
+  var el=document.getElementById('mob-summary-vals');
+  if(el)el.innerHTML='<span>'+fte+' FTEs</span> &middot; <span>$'+sal.toLocaleString()+'</span> &middot; <span>'+parseInt(pgs).toLocaleString()+' pages/mo</span>';
+}
+
+/* show summary bar + FAB only on mobile */
+function checkMobile(){
+  var isMob=isMobile();
+  var sumEl=document.getElementById('mob-summary');
+  if(sumEl)sumEl.style.display=isMob?'flex':'none';
+}
+
+/* Mobile slider events */
+['m-sl-fte','m-sl-sal','m-sl-pages'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el){
+    el.addEventListener('input',function(){syncFromMobile();});
+    el.addEventListener('change',function(){syncFromMobile();});
+  }
+});
+['m-p-impl','m-p-sub','m-p-aws','m-p-page','m-p-res'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el)el.addEventListener('input',syncFromMobile);
+});
+
+/* Also update summary bar when desktop go() runs */
+var _goOrig=go;
+go=function(){_goOrig();updateSummaryBar();checkMobile();};
+
+window.addEventListener('resize',checkMobile);
+checkMobile();
+updateSummaryBar();
 </script>
 </body>
 </html>
