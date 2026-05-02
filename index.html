@@ -257,37 +257,108 @@ td.dim .td-main{opacity:.3;font-style:italic}
 
 /* ── MOBILE OVERLAY & SUMMARY ── */
 @media(max-width:768px){
-  /* prevent horizontal scroll */
-  html,body{overflow-x:hidden !important;max-width:100vw !important}
-  img,canvas,svg,table{max-width:100%}
-  .body{grid-template-columns:1fr !important;overflow:visible !important;width:100%;height:auto !important}
-  .left{display:none} /* hidden — replaced by summary + overlay */
-  .right{overflow:visible;padding:12px 12px 80px 12px;width:100%;}
-  .metrics{grid-template-columns:1fr 1fr;width:100%;box-sizing:border-box}
-  .mid-row{grid-template-columns:1fr;min-height:auto}
-  .card{min-height:auto;width:100%;box-sizing:border-box;}
-  .chart-wrap{min-height:220px;width:100%;box-sizing:border-box}
-  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{min-width:0;width:100%}
+  html,body{
+    overflow-x:hidden !important;
+    width:100% !important;
+    max-width:100% !important;
+  }
+  .body{
+    display:block !important;
+    width:100% !important;
+    overflow:visible !important;
+    height:auto !important;
+  }
+  .left{display:none !important}
+  .right{
+    display:flex !important;
+    flex-direction:column;
+    width:100% !important;
+    max-width:100% !important;
+    padding:12px !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+    gap:10px;
+  }
+  .metrics{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:8px;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+  .met{
+    width:100% !important;
+    box-sizing:border-box !important;
+    min-width:0 !important;
+  }
+  .met-val{font-size:16px !important}
+  .mid-row{
+    display:flex !important;
+    flex-direction:column !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    gap:10px;
+  }
+  .card{
+    width:100% !important;
+    box-sizing:border-box !important;
+    min-height:auto !important;
+  }
+  .chart-wrap{
+    width:100% !important;
+    min-height:220px;
+    box-sizing:border-box !important;
+  }
+  canvas{
+    max-width:100% !important;
+  }
+  .tbl-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    width:100% !important;
+  }
+  table{width:100%}
   thead th,tbody td{white-space:nowrap;font-size:10px;padding:5px 6px}
   thead th:first-child,tbody td:first-child{white-space:normal;min-width:80px}
-  .impact-bar{flex-direction:column;gap:10px;padding:14px 12px;width:100%;box-sizing:border-box;overflow:hidden}
+  .impact-bar{
+    flex-direction:column !important;
+    gap:10px;
+    padding:14px 12px !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
   .impact-stats{width:100%;justify-content:center}
   .impact-quote{font-size:14px}
-  header{flex-wrap:wrap;height:auto;padding:10px 16px;gap:8px}
-  .reg-row{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;
-    -ms-overflow-style:none;scrollbar-width:none}
+  .impact-text{font-size:14px !important}
+  header{
+    flex-wrap:wrap;
+    height:auto;
+    padding:10px 16px;
+    gap:8px;
+    box-sizing:border-box;
+    width:100% !important;
+  }
+  .hdr-brand{min-width:0}
+  .reg-row{
+    justify-content:flex-start;
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    padding-bottom:2px;
+    width:100%;
+    -ms-overflow-style:none;
+    scrollbar-width:none;
+  }
   .reg-row::-webkit-scrollbar{display:none}
 
-  /* Summary bar — shows current params */
+  /* Summary bar */
   .mob-summary{
-    box-sizing:border-box;width:100%;
+    display:flex;
+    width:100% !important;
+    box-sizing:border-box !important;
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--rl);
     padding:10px 14px;
-    margin-bottom:10px;
-    display:flex;
     align-items:center;
     justify-content:space-between;
     gap:8px;
@@ -300,28 +371,28 @@ td.dim .td-main{opacity:.3;font-style:italic}
   }
   .mob-summary-vals span{color:var(--text);font-weight:500}
 
-  /* Floating edit button */
+  /* FAB */
   .mob-fab{
     position:fixed !important;
     bottom:24px !important;
     right:20px !important;
-    width:52px;height:52px;
+    width:52px !important;
+    height:52px !important;
     background:var(--text);
     border-radius:50%;
     border:none;
     cursor:pointer;
     display:flex !important;
-    align-items:center;justify-content:center;
+    align-items:center;
+    justify-content:center;
     box-shadow:0 4px 20px rgba(0,0,0,0.35);
     z-index:9999 !important;
-    transition:transform .15s;
     -webkit-transform:translateZ(0);
     transform:translateZ(0);
   }
-  .mob-fab:active{transform:scale(0.93)}
   .mob-fab svg{display:block;flex-shrink:0}
 
-  /* Full-screen overlay */
+  /* Overlay */
   .mob-overlay{
     position:fixed !important;
     top:0 !important;left:0 !important;
@@ -330,14 +401,14 @@ td.dim .td-main{opacity:.3;font-style:italic}
     background:var(--bg);
     z-index:9998 !important;
     display:flex;flex-direction:column;
+    -webkit-transform:translateY(100%);
     transform:translateY(100%);
     transition:transform .3s cubic-bezier(.32,.72,0,1);
-    -webkit-transform:translateY(100%);
     overflow:hidden;
   }
   .mob-overlay.open{
-    transform:translateY(0) !important;
     -webkit-transform:translateY(0) !important;
+    transform:translateY(0) !important;
   }
   .mob-overlay-header{
     background:var(--text);color:#fff;
@@ -351,21 +422,12 @@ td.dim .td-main{opacity:.3;font-style:italic}
     padding:6px 16px;font-size:13px;font-weight:500;
     font-family:'DM Sans',sans-serif;cursor:pointer;
   }
-  .mob-overlay-body{
-    flex:1;overflow-y:auto;
-    padding:16px;
-  }
+  .mob-overlay-body{flex:1;overflow-y:auto;padding:16px}
   .mob-overlay-body .sec-title{margin-top:4px}
   .mob-overlay-body .divider{margin:12px 0}
-
-  /* Region selector inside overlay */
   .mob-reg-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-  .mob-reg-row .rb{font-size:12px;padding:6px 12px;
-    border-color:var(--border-med);color:var(--text2)}
+  .mob-reg-row .rb{font-size:12px;padding:6px 12px;border-color:var(--border-med);color:var(--text2)}
   .mob-reg-row .rb.on{background:var(--text);color:#fff;border-color:var(--text)}
-  /* Override parent overflow:hidden so position:fixed FAB/overlay work on iOS */
-  .body{overflow:visible !important;height:auto !important}
-  .right{overflow:visible !important}
 }
 
 /* Hide mobile elements on desktop */
