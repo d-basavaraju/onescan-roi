@@ -662,14 +662,10 @@ td.dim .td-main{opacity:.3;font-style:italic}
     <div class="impact-bar">
       <div class="impact-main">
         <div class="impact-quote" id="impact-quote">80% less time on invoices. 100% more time for what matters.</div>
-        <div class="impact-sub">Based on your inputs &mdash; your team saves <span id="hrs-saved" style="color:#1A9E6E;font-weight:500">—</span> hrs/month on manual processing.</div>
-        <div class="impact-formula" id="formula-line">pages/mo &times; 2 min &times; 80% &divide; 60 = hrs saved/month</div>
+
       </div>
       <div class="impact-stats">
-        <div class="impact-stat">
-          <div class="impact-stat-num" id="stat-hrs">—</div>
-          <div class="impact-stat-lbl">hrs saved<br>per month</div>
-        </div>
+
         <div class="impact-stat">
           <div class="impact-stat-num" id="stat-auto">80%</div>
           <div class="impact-stat-lbl">workload<br>automated</div>
@@ -853,18 +849,11 @@ function go(){
   if(savLbl)savLbl.style.color=sav>=0?'var(--green)':'var(--coral)';
 
   /* Chart */
-  /* Update hours saved banner — driven by Manual Effort After Automation */
+  /* Update workload automated % — driven by Manual Effort After Automation */
   var autoPct=1-resPct;
-  var savedHrs=Math.round((pgs*2*autoPct)/60);
   var autoDisp=Math.round(autoPct*100);
-  var el1=document.getElementById('stat-hrs');
-  var el2=document.getElementById('hrs-saved');
   var el3=document.getElementById('stat-auto');
-  var el4=document.getElementById('formula-line');
-  if(el1)el1.textContent=savedHrs.toLocaleString();
-  if(el2)el2.textContent=savedHrs.toLocaleString();
   if(el3)el3.textContent=autoDisp+'%';
-  if(el4)el4.textContent='pages/mo × 2 min × '+autoDisp+'% ÷ 60 = hrs saved/month';
 
   if(chart){
     chart.data.datasets[0].data=[man,man,man];
