@@ -360,8 +360,19 @@ td.dim .td-main{opacity:.3;font-style:italic}
     border-radius:var(--rl);
     padding:10px 14px;
     align-items:center;
-    justify-content:space-between;
-    gap:8px;
+  }
+  .mob-summary-rows{
+    display:flex;flex-direction:column;gap:5px;
+    width:100%;min-width:0;
+  }
+  .mob-summary-row{
+    display:flex;align-items:baseline;gap:8px;
+    min-width:0;
+  }
+  .mob-summary-tag{
+    font-size:9px;font-weight:600;
+    text-transform:uppercase;letter-spacing:.07em;
+    color:var(--text3);flex-shrink:0;width:52px;
   }
   .mob-summary-vals{
     font-size:12px;color:var(--text2);
@@ -370,9 +381,21 @@ td.dim .td-main{opacity:.3;font-style:italic}
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
   .mob-summary-vals span{color:var(--text);font-weight:500}
+  .mob-summary-edit{
+    flex-shrink:0;
+    width:28px;height:28px;
+    background:var(--surface2);
+    border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text2);
+    margin-left:8px;
+  }
+  .mob-summary{cursor:pointer}
+  .mob-summary:active{opacity:0.75}
 
-  /* FAB */
-  .mob-fab{
+  /* FAB — hidden on mobile, summary bar pencil used instead */
+  .mob-fab{display:none !important;}
+  .mob-fab-hidden{
     position:fixed !important;
     bottom:24px !important;
     right:20px !important;
@@ -514,8 +537,22 @@ td.dim .td-main{opacity:.3;font-style:italic}
   <div class="right">
 
     <!-- MOBILE SUMMARY BAR -->
-    <div class="mob-summary" id="mob-summary" style="display:none">
-      <div class="mob-summary-vals" id="mob-summary-vals">5 FTEs &middot; $55,000 &middot; 5,000 pages</div>
+    <div class="mob-summary" id="mob-summary" style="display:none" onclick="openOverlay()">
+      <div class="mob-summary-rows">
+        <div class="mob-summary-row">
+          <span class="mob-summary-tag">Manual</span>
+          <span class="mob-summary-vals" id="mob-summary-manual">5 FTEs &middot; $55,000 &middot; 5,000 pages/mo</span>
+        </div>
+        <div class="mob-summary-row">
+          <span class="mob-summary-tag">OneScan</span>
+          <span class="mob-summary-vals" id="mob-summary-onescan">$30,000 (One-time) &middot; $1,500/mo</span>
+        </div>
+      </div>
+      <div class="mob-summary-edit">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14.69 2.31a1.5 1.5 0 0 1 2.12 2.12L6.5 14.75l-2.83.71.71-2.83L14.69 2.31z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
     </div>
 
     <div class="metrics">
@@ -1039,8 +1076,20 @@ function updateSummaryBar(){
   var fte=document.getElementById('sl-fte').value;
   var sal=parseInt(document.getElementById('sl-sal').value)||55000;
   var pgs=document.getElementById('sl-pages').value;
-  var el=document.getElementById('mob-summary-vals');
-  if(el)el.innerHTML='<span>'+fte+' FTEs</span> &middot; <span>$'+sal.toLocaleString()+'</span> &middot; <span>'+parseInt(pgs).toLocaleString()+' pages/mo</span>';
+  var impl=parseFloat(document.getElementById('p-impl').value)||30000;
+  var sub=parseFloat(document.getElementById('p-sub').value)||1500;
+
+  var manEl=document.getElementById('mob-summary-manual');
+  var osEl=document.getElementById('mob-summary-onescan');
+
+  if(manEl)manEl.innerHTML=
+    '<span>'+fte+' FTEs</span>'
+    +' &middot; <span>$'+sal.toLocaleString()+'</span>'
+    +' &middot; <span>'+parseInt(pgs).toLocaleString()+' pages/mo</span>';
+
+  if(osEl)osEl.innerHTML=
+    '<span>$'+Math.round(impl).toLocaleString()+' (One-time)</span>'
+    +' &middot; <span>$'+Math.round(sub).toLocaleString()+'/mo</span>';
 }
 
 /* show summary bar + FAB only on mobile */
