@@ -205,7 +205,7 @@ td.dim .td-main{opacity:.3;font-style:italic}
   header{flex-wrap:wrap;height:auto;padding:10px 16px;gap:8px}
   .reg-row{justify-content:flex-start}
   .left,.right{padding:12px}
-  .metrics{grid-template-columns:1fr 1fr}
+  .metrics{grid-template-columns:1fr 1fr;width:100%;box-sizing:border-box}
   .mid-row{grid-template-columns:1fr}
 }
 
@@ -259,19 +259,19 @@ td.dim .td-main{opacity:.3;font-style:italic}
 @media(max-width:768px){
   /* prevent horizontal scroll */
   html,body{overflow-x:hidden !important;max-width:100vw !important}
-  *{max-width:100vw}
+  img,canvas,svg,table{max-width:100%}
   .body{grid-template-columns:1fr !important;overflow:visible !important;width:100%;height:auto !important}
   .left{display:none} /* hidden — replaced by summary + overlay */
-  .right{overflow:visible;padding:12px}
-  .metrics{grid-template-columns:1fr 1fr}
+  .right{overflow:visible;padding:12px 12px 80px 12px;width:100%;}
+  .metrics{grid-template-columns:1fr 1fr;width:100%;box-sizing:border-box}
   .mid-row{grid-template-columns:1fr;min-height:auto}
-  .card{min-height:auto;max-width:100%}
-  .chart-wrap{min-height:220px}
+  .card{min-height:auto;width:100%;box-sizing:border-box;}
+  .chart-wrap{min-height:220px;width:100%;box-sizing:border-box}
   .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
   table{min-width:0;width:100%}
   thead th,tbody td{white-space:nowrap;font-size:10px;padding:5px 6px}
   thead th:first-child,tbody td:first-child{white-space:normal;min-width:80px}
-  .impact-bar{flex-direction:column;gap:10px;padding:14px 16px;width:100%;overflow:hidden}
+  .impact-bar{flex-direction:column;gap:10px;padding:14px 12px;width:100%;box-sizing:border-box;overflow:hidden}
   .impact-stats{width:100%;justify-content:center}
   .impact-quote{font-size:14px}
   header{flex-wrap:wrap;height:auto;padding:10px 16px;gap:8px}
@@ -281,6 +281,7 @@ td.dim .td-main{opacity:.3;font-style:italic}
 
   /* Summary bar — shows current params */
   .mob-summary{
+    box-sizing:border-box;width:100%;
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--rl);
@@ -393,11 +394,6 @@ td.dim .td-main{opacity:.3;font-style:italic}
 
 <div class="body">
 
-  <!-- MOBILE SUMMARY BAR -->
-  <div class="mob-summary" id="mob-summary" style="display:none">
-    <div class="mob-summary-vals" id="mob-summary-vals">5 FTEs &middot; $55,000 &middot; 5,000 pages</div>
-  </div>
-
   <!-- LEFT -->
   <div class="left">
     <div class="left-scroll">
@@ -454,6 +450,12 @@ td.dim .td-main{opacity:.3;font-style:italic}
 
   <!-- RIGHT -->
   <div class="right">
+
+    <!-- MOBILE SUMMARY BAR -->
+    <div class="mob-summary" id="mob-summary" style="display:none">
+      <div class="mob-summary-vals" id="mob-summary-vals">5 FTEs &middot; $55,000 &middot; 5,000 pages</div>
+    </div>
+
     <div class="metrics">
       <div class="met">
         <div class="met-label">Annual manual cost</div>
