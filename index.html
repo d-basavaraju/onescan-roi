@@ -185,7 +185,29 @@ tbody tr.tot td{
 tbody tr.tot .td-main{color:var(--text);font-weight:500}
 tbody tr.tot .item-name{font-weight:500}
 tbody tr.sav .td-main{font-weight:500}
-tbody tr.sav td{border-bottom:none}
+tbody tr.sav td{border-bottom:0.5px solid var(--border)}
+tbody tr.sav-pct td{border-bottom:none}
+tbody tr.sav-pct .td-main{font-size:11px;font-weight:500}
+tbody tr.tbl-section-sep td{
+  padding:10px 8px 4px;
+  border-bottom:none;
+}
+.tbl-section-lbl{
+  font-size:9px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.09em;
+  color:var(--text3);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.tbl-section-lbl::before{
+  content:'';display:inline-block;
+  width:24px;height:1px;
+  background:var(--border-med);vertical-align:middle;
+}
+.tbl-section-lbl::after{
+  content:'';display:inline-block;
+  width:60px;height:1px;
+  background:var(--border-med);vertical-align:middle;
+}
 td.dim .td-main{opacity:.3;font-style:italic}
 .foot{font-size:10px;color:var(--text3);padding-top:10px;border-top:1px solid var(--border);line-height:1.6;flex-shrink:0;margin-top:4px}
 
@@ -497,7 +519,7 @@ td.dim .td-main{opacity:.3;font-style:italic}
         <div class="pi-loc" id="loc-impl"></div>
       </div>
       <div class="pi">
-        <div class="pi-label">Subscription / month</div>
+        <div class="pi-label">Support / month</div>
         <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="p-sub" value="1500" oninput="go()"></div>
         <div class="pi-loc" id="loc-sub"></div>
       </div>
@@ -620,6 +642,11 @@ td.dim .td-main{opacity:.3;font-style:italic}
                 <td><span class="item-name">Manual processing</span><span class="item-sub">Status quo</span></td>
                 <td id="t-m1"></td><td id="t-m2"></td><td id="t-m3"></td><td id="t-mt"></td>
               </tr>
+              <tr class="tbl-section-sep">
+                <td colspan="5">
+                  <span class="tbl-section-lbl">OneScan Cost</span>
+                </td>
+              </tr>
               <tr>
                 <td><span class="item-name">Implementation fee</span><span class="item-sub">One-time, Yr 1 only</span></td>
                 <td id="t-i1"></td>
@@ -628,7 +655,7 @@ td.dim .td-main{opacity:.3;font-style:italic}
                 <td id="t-it"></td>
               </tr>
               <tr>
-                <td><span class="item-name">Subscription</span><span class="item-sub" id="lbl-sub"></span></td>
+                <td><span class="item-name">Support</span><span class="item-sub" id="lbl-sub"></span></td>
                 <td id="t-s1"></td><td id="t-s2"></td><td id="t-s3"></td><td id="t-st"></td>
               </tr>
               <tr>
@@ -650,6 +677,10 @@ td.dim .td-main{opacity:.3;font-style:italic}
               <tr class="sav">
                 <td><span class="item-name" id="sav-label">Savings vs manual</span></td>
                 <td id="t-v1"></td><td id="t-v2"></td><td id="t-v3"></td><td id="t-vt"></td>
+              </tr>
+              <tr class="sav-pct">
+                <td><span class="item-name" id="savpct-label">Savings %</span></td>
+                <td id="t-vp1"></td><td id="t-vp2"></td><td id="t-vp3"></td><td id="t-vpt"></td>
               </tr>
             </tbody>
           </table>
@@ -696,7 +727,7 @@ var R={
   NA:{impl:30000,sub:1500,aws:100,page:40,res:20,sal:55000,salMin:40000,salMax:100000,salStep:1000,rate:1,lsym:'$',cur:'USD',indian:false},
   UAE:{impl:30000,sub:1500,aws:100,page:40,res:20,sal:18000,salMin:10000,salMax:36000,salStep:500,rate:3.67,lsym:'AED\u00a0',cur:'AED',indian:false},
   SA:{impl:30000,sub:1500,aws:100,page:40,res:20,sal:16000,salMin:10000,salMax:36000,salStep:500,rate:3.75,lsym:'SAR\u00a0',cur:'SAR',indian:false},
-  PH:{impl:30000,sub:1500,aws:100,page:40,res:20,sal:6000,salMin:4000,salMax:10000,salStep:100,rate:56,lsym:'\u20b1',cur:'PHP',indian:false},
+  PH:{impl:30000,sub:1500,aws:100,page:40,res:20,sal:8000,salMin:4000,salMax:15000,salStep:100,rate:56,lsym:'\u20b1',cur:'PHP',indian:false},
   IN:{impl:30000,sub:1500,aws:100,page:40,res:20,sal:5000,salMin:3000,salMax:10000,salStep:100,rate:83,lsym:'\u20b9',cur:'INR',indian:false}
 };
 var cr='NA';
@@ -844,9 +875,29 @@ function go(){
   tcell('t-o1',y1,r);tcell('t-o2',y2,r);tcell('t-o3',y3,r);tcell('t-ot',y1+y2+y3,r);
   var sv1=man-y1,sv2=man-y2,sv3=man-y3;
   savCell('t-v1',sv1,r);savCell('t-v2',sv2,r);savCell('t-v3',sv3,r);savCell('t-vt',sav,r);
-  /* Color the row label too */
+  /* Color the savings row label */
   var savLbl=document.getElementById('sav-label');
   if(savLbl)savLbl.style.color=sav>=0?'var(--green)':'var(--coral)';
+  /* Savings % row */
+  function spct(sving,base){
+    if(!base)return '—';
+    var p=Math.round((sving/base)*100);
+    return (p>=0?'+':'')+p+'%';
+  }
+  function savPctCell(id,sving,base){
+    var el=document.getElementById(id);
+    if(!el)return;
+    var p=base?Math.round((sving/base)*100):0;
+    var col=p>=0?'var(--green)':'var(--coral)';
+    el.innerHTML='<span class="td-main" style="color:'+col+'">'+(p>=0?'+':'')+p+'%</span>';
+  }
+  savPctCell('t-vp1',sv1,man);
+  savPctCell('t-vp2',sv2,man);
+  savPctCell('t-vp3',sv3,man);
+  savPctCell('t-vpt',sav,man*3);
+  /* Color savings % label */
+  var savPctLbl=document.getElementById('savpct-label');
+  if(savPctLbl)savPctLbl.style.color=sav>=0?'var(--green)':'var(--coral)';
 
   /* Chart */
   /* Update workload automated % — driven by Manual Effort After Automation */
@@ -954,7 +1005,7 @@ go();
       <div class="pi-loc" id="m-loc-impl"></div>
     </div>
     <div class="pi">
-      <div class="pi-label">Subscription / month</div>
+      <div class="pi-label">Support / month</div>
       <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="m-p-sub" value="1500" oninput="syncFromMobile()"></div>
       <div class="pi-loc" id="m-loc-sub"></div>
     </div>
