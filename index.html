@@ -93,6 +93,13 @@ header{
 .pi-label{font-size:11px;color:var(--text2);margin-bottom:3px}
 .pi-row{display:flex;align-items:center;gap:4px}
 .pi-sym{font-size:12px;color:var(--text3);flex-shrink:0;width:10px}
+.pi-row{position:relative}
+.pi-pct{
+  position:absolute;
+  right:10px;top:50%;transform:translateY(-50%);
+  font-size:12px;color:var(--text3);
+  pointer-events:none;
+}
 .pi-row input[type=number]{
   flex:1;min-width:0;
   font-family:'DM Mono',monospace;font-size:12px;font-weight:500;
@@ -519,9 +526,14 @@ td.dim .td-main{opacity:.3;font-style:italic}
         <div class="pi-loc" id="loc-impl"></div>
       </div>
       <div class="pi">
-        <div class="pi-label">Support / month</div>
+        <div class="pi-label">Support / month <span style="font-size:10px;color:var(--text3);font-weight:400">(Optional)</span></div>
         <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="p-sub" value="1500" oninput="go()"></div>
         <div class="pi-loc" id="loc-sub"></div>
+      </div>
+      <div class="pi">
+        <div class="pi-label">Support Duration (Months)</div>
+        <div class="pi-row"><input type="number" id="p-sub-months" value="3" min="0" max="36" oninput="go()" style="text-align:right;padding-right:28px"><span class="pi-pct">mo</span></div>
+        <div class="pi-loc">Months of post-go-live support</div>
       </div>
       <div class="pi">
         <div class="pi-label">AWS infra / month</div>
@@ -535,7 +547,7 @@ td.dim .td-main{opacity:.3;font-style:italic}
       </div>
       <div class="pi">
         <div class="pi-label">Manual Effort After Automation</div>
-        <div class="pi-row"><input type="number" id="p-res" value="20" oninput="go()"><span class="pi-sym" style="width:auto;margin-left:4px">%</span></div>
+        <div class="pi-row"><input type="number" id="p-res" value="20" oninput="go()" style="text-align:right;padding-right:28px"><span class="pi-pct">%</span></div>
         <div class="pi-loc">% of total FTE salary cost</div>
       </div>
 
@@ -834,7 +846,11 @@ function go(){
   st('v-sal-loc',r.rate!==1?'\u2248\u00a0'+r.lsym+Math.round(sal*r.rate).toLocaleString()+'\u00a0'+r.cur:'');
   st('v-pages',pgs.toLocaleString());
 
-  var impl=gv('p-impl'),subMo=gv('p-sub'),awsMo=gv('p-aws'),pgK=gv('p-page'),resPct=gv('p-res')/100;
+  var impl=gv('p-impl'),subMo=gv('p-sub'),subMonths=gv('p-sub-months'),awsMo=gv('p-aws'),pgK=gv('p-page'),resPct=gv('p-res')/100;
+  /* Support cost per year based on duration */
+  var subY1=subMo*Math.min(subMonths,12);
+  var subY2=subMo*Math.max(0,Math.min(subMonths-12,12));
+  var subY3=subMo*Math.max(0,Math.min(subMonths-24,12));
 
   /* Pricing local hints */
   st('loc-impl',r.rate!==1?flStr(impl,r):'');
@@ -842,7 +858,7 @@ function go(){
   st('loc-aws',r.rate!==1?flStr(awsMo,r)+'/mo':'');
   st('loc-page',r.rate!==1?flStr(pgK,r)+' per 1K':'');
 
-  st('lbl-sub','$'+subMo.toLocaleString()+'/mo \u00b7 $'+Math.round(subMo*12).toLocaleString()+'/yr');
+  st('lbl-sub','$'+subMo.toLocaleString()+'/mo \u00b7 '+subMonths+' mo total');
   st('lbl-aws','$'+awsMo.toLocaleString()+'/mo \u00b7 $'+Math.round(awsMo*12).toLocaleString()+'/yr');
   st('lbl-pg','$'+pgK+' per 1,000 pages');
   st('lbl-res',Math.round(gv('p-res')));
@@ -850,8 +866,8 @@ function go(){
   /* For India, salary slider is in INR, so convert to USD for calculations */
   var salUSD=sal;
   var man=fte*salUSD;
-  var subA=subMo*12,awsA=awsMo*12,pgA=(pgs/1000)*pgK*12,res=man*resPct;
-  var y1=impl+subA+awsA+pgA+res,y2=subA+awsA+pgA+res,y3=y2;
+  var awsA=awsMo*12,pgA=(pgs/1000)*pgK*12,res=man*resPct;
+  var y1=impl+subY1+awsA+pgA+res,y2=subY2+awsA+pgA+res,y3=subY3+awsA+pgA+res;
   var roi=((man-y1)/y1)*100,sav=(man*3)-(y1+y2+y3);
 
   /* Metric cards */
@@ -868,7 +884,7 @@ function go(){
   /* Table cells */
   tcell('t-m1',man,r);tcell('t-m2',man,r);tcell('t-m3',man,r);tcell('t-mt',man*3,r);
   tcell('t-i1',impl,r);tcell('t-it',impl,r);
-  tcell('t-s1',subA,r);tcell('t-s2',subA,r);tcell('t-s3',subA,r);tcell('t-st',subA*3,r);
+  tcell('t-s1',subY1,r);tcell('t-s2',subY2,r);tcell('t-s3',subY3,r);tcell('t-st',subY1+subY2+subY3,r);
   tcell('t-a1',awsA,r);tcell('t-a2',awsA,r);tcell('t-a3',awsA,r);tcell('t-at',awsA*3,r);
   tcell('t-p1',pgA,r);tcell('t-p2',pgA,r);tcell('t-p3',pgA,r);tcell('t-pt',pgA*3,r);
   tcell('t-r1',res,r);tcell('t-r2',res,r);tcell('t-r3',res,r);tcell('t-rt',res*3,r);
@@ -946,7 +962,7 @@ function go(){
   el.addEventListener('input',go);
   el.addEventListener('change',go);
 });
-['p-impl','p-sub','p-aws','p-page','p-res'].forEach(function(id){
+['p-impl','p-sub','p-sub-months','p-aws','p-page','p-res'].forEach(function(id){
   document.getElementById(id).addEventListener('input',go);
 });
 window.addEventListener('resize',function(){if(chart)chart.resize();});
@@ -1005,9 +1021,14 @@ go();
       <div class="pi-loc" id="m-loc-impl"></div>
     </div>
     <div class="pi">
-      <div class="pi-label">Support / month</div>
+      <div class="pi-label">Support / month <span style="font-size:10px;color:var(--text3);font-weight:400">(Optional)</span></div>
       <div class="pi-row"><span class="pi-sym">$</span><input type="number" id="m-p-sub" value="1500" oninput="syncFromMobile()"></div>
       <div class="pi-loc" id="m-loc-sub"></div>
+    </div>
+    <div class="pi">
+      <div class="pi-label">Support Duration (Months)</div>
+      <div class="pi-row"><input type="number" id="m-p-sub-months" value="3" min="0" max="36" oninput="syncFromMobile()" style="text-align:right;padding-right:28px;font-size:16px !important"><span class="pi-pct">mo</span></div>
+      <div class="pi-loc">Months of post-go-live support</div>
     </div>
     <div class="pi">
       <div class="pi-label">AWS infra / month</div>
@@ -1021,7 +1042,7 @@ go();
     </div>
     <div class="pi">
       <div class="pi-label">Manual Effort After Automation</div>
-      <div class="pi-row"><input type="number" id="m-p-res" value="20" oninput="syncFromMobile()"><span class="pi-sym" style="width:auto;margin-left:4px">%</span></div>
+      <div class="pi-row"><input type="number" id="m-p-res" value="20" oninput="syncFromMobile()" style="text-align:right;padding-right:28px;font-size:16px !important"><span class="pi-pct">%</span></div>
       <div class="pi-loc">% of total FTE salary cost</div>
     </div>
 
@@ -1068,7 +1089,7 @@ function closeOverlay(){
 }
 
 function syncOverlayFromDesktop(){
-  var fields=[['p-impl','m-p-impl'],['p-sub','m-p-sub'],['p-aws','m-p-aws'],
+  var fields=[['p-impl','m-p-impl'],['p-sub','m-p-sub'],['p-sub-months','m-p-sub-months'],['p-aws','m-p-aws'],
               ['p-page','m-p-page'],['p-res','m-p-res'],
               ['sl-fte','m-sl-fte'],['sl-sal','m-sl-sal'],['sl-pages','m-sl-pages']];
   fields.forEach(function(f){
@@ -1090,7 +1111,7 @@ function syncOverlayFromDesktop(){
 
 function syncFromMobile(){
   /* copy mobile overlay values → desktop hidden inputs → trigger go() */
-  var fields=[['p-impl','m-p-impl'],['p-sub','m-p-sub'],['p-aws','m-p-aws'],
+  var fields=[['p-impl','m-p-impl'],['p-sub','m-p-sub'],['p-sub-months','m-p-sub-months'],['p-aws','m-p-aws'],
               ['p-page','m-p-page'],['p-res','m-p-res'],
               ['sl-fte','m-sl-fte'],['sl-sal','m-sl-sal'],['sl-pages','m-sl-pages']];
   fields.forEach(function(f){
